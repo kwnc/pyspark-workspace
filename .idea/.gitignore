@@ -1,0 +1,8 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Datasource local storage ignored files
+/../../../../../../../../:\Users\KonradWenc\OneDrive - ICBPANPCSS-8009567-Politechnika Rzeszowska im. Ignacego Lukasiewicza\Dokumenty\GitHub\pyspark-workspace\.idea/dataSources/
+/dataSources.local.xml
+# Editor-based HTTP Client requests
+/httpRequests/
