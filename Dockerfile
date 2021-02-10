@@ -1,5 +1,8 @@
-# Wybierz bazowy obraz
+# Wybranie bazowego obrazu
 FROM jupyter/pyspark-notebook:latest
 
 COPY rdd.ipynb examples/rdd.ipynb
-COPY fakefriends.csv examples/fakefriends.csv
+COPY dataframes.ipynb examples/dataframes.ipynb
+
+# Zbiory danych do analiz
+COPY life-expectancy.csv examples/life-expectancy.csv
