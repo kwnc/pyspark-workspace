@@ -3,7 +3,7 @@ version: "3.9"
 services: 
 
   pyspark-notebook:
-    image: kwnc/pyspark-notebook
+    image: pyspark-notebook
     container_name: pyspark-notebook
     ports: 
       - "8888:8888"
