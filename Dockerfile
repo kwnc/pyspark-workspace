@@ -1,8 +1,9 @@
 FROM centos:centos7
+MAINTAINER Konrad Wenc <imkonradwenc@gmail.com>
 
-ENV SPARK_PROFILE 2.4
-ENV SPARK_VERSION 2.4.0
-ENV HADOOP_PROFILE 2.7
+ENV SPARK_PROFILE 3.0.2
+ENV SPARK_VERSION 3.0.2
+ENV HADOOP_PROFILE 3.2
 ENV SPARK_HOME /usr/local/spark
 
 # Update the image with the latest packages
