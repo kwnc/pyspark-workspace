@@ -1,10 +1,10 @@
 from pyspark import SparkConf, SparkContext
 
-conf = SparkConf().setMaster("local[*]").setAppName("LifeExpectancy")
+conf = SparkConf().setMaster("spark://192.168.222.129:7077").setAppName("LifeExpectancy")
 sc = SparkContext(conf=conf)
 
 ### Wczytanie danych
-lines = sc.textFile("/home/konrad.wenc/work/life-expectancy.csv")
+lines = sc.textFile("/home/lab/work/life-expectancy.csv")
 lines.first()
 
 ### Metoda przetwarzająca linie
