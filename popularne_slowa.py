@@ -1,11 +1,9 @@
-from pyspark.sql import SparkSession
-from pyspark.sql import functions as F
+from pyspark.sql import SparkSession, functions as F
 
-
-spark_session = SparkSession.builder.appName("Popularne słowa")\
-    .master("spark://192.168.222.132:7077").getOrCreate()
-spark_session.sparkContext.setLogLevel("WARN")
-
+spark_session = SparkSession.builder.appName("Popularne słowa") \
+    .master("spark://192.168.222.132:7077") \
+    .getOrCreate()
+spark_session.sparkContext.setLogLevel("FATAL")
 
 book = spark_session.read.text("./data/books/*.txt")
 
@@ -21,6 +19,6 @@ words_nonull = words_clean.where(F.col("word") != "")
 
 results = words_nonull.groupBy(F.col("word")).count()
 
-results.orderBy("count", ascending=False).show(20)
+results.orderBy("count", ascending=False).show(40)
 
 # results.coalesce(1).write.csv('./results_single_partition.csv')
