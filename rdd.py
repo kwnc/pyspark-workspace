@@ -1,11 +1,12 @@
 from pyspark import SparkConf, SparkContext
 
-conf = SparkConf().setMaster("spark://192.168.222.129:7077").setAppName("LifeExpectancy")
+conf = SparkConf() \
+    .setAppName("Oczekiwana dł. życia")
 sc = SparkContext(conf=conf)
 
 ### Wczytanie danych
-lines = sc.textFile("/home/lab/work/life-expectancy.csv")
-lines.first()
+lines = sc.textFile("/home/lab/data/life-expectancy.csv")
+
 
 ### Metoda przetwarzająca linie
 def parse_line(line):
@@ -13,6 +14,7 @@ def parse_line(line):
     entity = fields[0]
     life_expect = int(float(fields[3]))
     return entity, life_expect
+
 
 ### Kraje z nadłuższym wskaźnikiem długości życia
 parsed_lines = lines.map(parse_line)
