@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession, functions as F
 
 
-def main(spark_session):
+def analize_books(spark_session):
     books = spark_session.read.text("./data/books/*.txt")
 
     lines = books.select(F.split(books.value, " ").alias("line"))
@@ -14,18 +14,19 @@ def main(spark_session):
 
     words_nonull = words_clean.where(F.col("word") != "")
 
-    results = words_nonull.groupBy(F.col("word")).count()
+    results = words_nonull.groupBy(F.col("word")).count().show()
 
-    results.orderBy("count", ascending=False).show(40)
+    results.orderBy("count", ascending=False).show(50)
 
-    results.coalesce(1).write.csv('./results_single_partition.csv')
+    results.coalesce(1).write.csv('./results_single_partition')
 
 
 if __name__ == '__main__':
     spark_session = SparkSession.builder.appName("Popularne słowa") \
+        .master("spark://10.111.111.57:7077") \
         .getOrCreate()
 
     spark_session.sparkContext.setLogLevel("WARN")
 
-    main(spark_session)
+    analize_books(spark_session)
     spark_session.stop()
