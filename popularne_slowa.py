@@ -2,7 +2,7 @@ from pyspark.sql import SparkSession, functions as F
 
 
 def analize_books(spark_session):
-    books = spark_session.read.text("./data/books/*.txt")
+    books = spark_session.read.text("./data/books-in-english/*.txt")
 
     lines = books.select(F.split(books.value, " ").alias("line"))
 
@@ -23,7 +23,6 @@ def analize_books(spark_session):
 
 if __name__ == '__main__':
     spark_session = SparkSession.builder.appName("Popularne słowa") \
-        .master("spark://10.111.111.57:7077") \
         .getOrCreate()
 
     spark_session.sparkContext.setLogLevel("WARN")

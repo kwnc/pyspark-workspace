@@ -3,21 +3,14 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
-        <entry key="\data\Ch04\Call_Signs.csv">
+        <entry key="\data\life-expectancy.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
             </Attribute>
           </value>
         </entry>
-        <entry key="\popularne_slowa.py">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\top-urls.py">
+        <entry key="\data\recipes\epi_r.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
