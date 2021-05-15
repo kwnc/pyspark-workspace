@@ -1,4 +1,5 @@
 from pyspark import SparkConf, SparkContext
+import csv
 
 
 def read_data(path):
@@ -6,29 +7,34 @@ def read_data(path):
     return lines_rdd
 
 
-### Metoda przetwarzająca linie
-def structure_line(line):
-    fields = line.split(',')
-    entity = fields[0]
-    life_expect = int(float(fields[3]))
-    return entity, life_expect
+def to_key_value(rdd_line):
+    columns = rdd_line.split(',')
+    country = columns[0]
+    life_expect = int(float(columns[3]))
+    return country, life_expect
+
+
+def max_reduce(key_value_rdd):
+    max_life = key_value_rdd.reduceByKey(lambda x, y: max(x, y))
+    flipped = max_life.map(lambda x: (x[1], x[0]))
+    max_life_sorted = flipped.sortByKey(False)
+    results = max_life_sorted.collect()
+    return results
 
 
 if __name__ == '__main__':
-    conf = SparkConf() \
-        .setAppName("Oczekiwana dł. życia")
-    spark_context = SparkContext(conf=conf)
+    spark_conf = SparkConf().setAppName("Oczekiwana dl. zycia")
+    spark_context = SparkContext.getOrCreate(conf=spark_conf)
 
     data_path = """/home/lab/data/life-expectancy.csv"""
     lines = read_data(data_path)
+    parsed_lines = lines.map(to_key_value)
+    results = max_reduce(parsed_lines)
 
-    parsed_lines = lines.map(structure_line)
-    life_expectancy = parsed_lines.map(lambda x: (x[0], x[1]))
-    max_life = life_expectancy.reduceByKey(lambda x, y: max(x, y))
+    with open('life_expect_results.csv', 'w') as results_file:
+        csv_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        csv_writer.writerow(["country", "max_life_expect"])
 
-    flipped = max_life.map(lambda x: (x[1], x[0]))
-    max_life_sorted = flipped.sortByKey()
-
-    results = max_life_sorted.collect()
-    for result in results:
-        print(result[1] + " - " + str(result[0]) + " lat")
+        for result in results:
+            print(result[1] + " -" + str(result[0]) + " lat")
+            csv_writer.writerow([result[1], str(result[0])])
