@@ -5,7 +5,7 @@ from pyspark.ml import Pipeline
 
 
 def read_data(file_path):
-    cars_df = spark.read.load(data_path, format="csv", sep=",", inferSchema="true", header="true")
+    cars_df = spark.read.load(file_path, format="csv", sep=",", inferSchema="true", header="true")
     result_df = cars_df.toDF("make", "model", "year", "engine_fuel_type", "engine_hp", "engine_cylinders",
                              "transmission_type", "driven_wheels", "number_of_doors", "market_category", "vehicle_size",
                              "vehicle_style", "highway_mpg", "city_mpg", "popularity", "price")
@@ -29,14 +29,13 @@ if __name__ == '__main__':
     data_path = """./data/car-data.csv"""
     cars_df = read_data(data_path)
 
-    cars_df.withColumn("engine_hp", cars_df.engine_hp.cast('double'))
-    cars_df.withColumn("price", cars_df.price.cast('double'))
-
     train_df, test_df = split_data(cars_df)
 
-    vec_assembler = VectorAssembler(inputCols=["engine_hp"], outputCol="features", handleInvalid="skip")
+    vec_assembler = VectorAssembler(inputCols=["year", "engine_hp", "number_of_doors", "popularity"],
+                                    outputCol="features",
+                                    handleInvalid="skip")
     vec_train_df = vec_assembler.transform(train_df)
-    vec_train_df.select("engine_hp", "features", "price").show(10)
+    vec_train_df.select("year", "engine_hp", "features", "price").show(10)
 
     lr = LinearRegression(featuresCol="features", labelCol="price")
     lr_model = lr.fit(vec_train_df)
@@ -45,9 +44,10 @@ if __name__ == '__main__':
     b = round(lr_model.intercept, 2)
     print(f"""Wzor dla regresji liniowej to: cena = {m}*konie mechaniczne + {b}""")
 
-    pipeline = Pipeline(stages=[vec_assembler, lr])
-    pipeline_model = pipeline.fit(train_df)
+    estimator = Pipeline(stages=[vec_assembler, lr])
+    estimator_model = estimator.fit(train_df)
 
-    pred_df = pipeline_model.transform(test_df)
-    pred_df.show(10)
-    pred_df.select("engine_hp", "features", "price", "prediction").show(10)
+    prediction_df = estimator_model.transform(test_df)
+    prediction_df.show(10)
+    prediction_df.select("year", "engine_hp", "number_of_doors", "popularity", "features", "price", "prediction").show(
+        10)
