@@ -31,9 +31,8 @@ if __name__ == '__main__':
 
     train_df, test_df = split_data(cars_df)
 
-    vec_assembler = VectorAssembler(inputCols=["year", "engine_hp", "number_of_doors", "popularity"],
-                                    outputCol="features",
-                                    handleInvalid="skip")
+    numeric_cols = ["year", "engine_hp", "number_of_doors", "highway_mpg", "city_mpg", "popularity"]
+    vec_assembler = VectorAssembler(inputCols=numeric_cols, outputCol="features", handleInvalid="skip")
     vec_train_df = vec_assembler.transform(train_df)
     vec_train_df.select("year", "engine_hp", "features", "price").show(10)
 
@@ -49,5 +48,4 @@ if __name__ == '__main__':
 
     prediction_df = estimator_model.transform(test_df)
     prediction_df.show(10)
-    prediction_df.select("year", "engine_hp", "number_of_doors", "popularity", "features", "price", "prediction").show(
-        10)
+    prediction_df.select("features", "price", "prediction").show(10)
