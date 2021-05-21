@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession
+from pyspark.ml import Pipeline
 from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.regression import LinearRegression
-from pyspark.ml import Pipeline
 from pyspark.ml.evaluation import RegressionEvaluator
 import matplotlib.pyplot as plt
 import numpy as np
@@ -25,22 +25,37 @@ def split_data(data_df):
     return train_df, test_df
 
 
-def create_model(train_dataset):
+def train_model(train_dataset):
+    numeric_cols = ["year", "engine_hp", "number_of_doors", "highway_mpg", "city_mpg", "popularity"]
+    vec_assembler = VectorAssembler(inputCols=numeric_cols, outputCol="features", handleInvalid="skip")
+
     vec_train_df = vec_assembler.transform(train_dataset)
     vec_train_df.select("features", "price").show(10)
 
     lr = LinearRegression(featuresCol="features", labelCol="price")
     lr_model = lr.fit(vec_train_df)
 
-    m = round(lr_model.coefficients[0], 2)
+    year = round(lr_model.coefficients[0], 2)
+    engine_hp = round(lr_model.coefficients[1], 2)
+    number_of_doors = round(lr_model.coefficients[2], 2)
+    highway_mpg = round(lr_model.coefficients[3], 2)
+    city_mpg = round(lr_model.coefficients[4], 2)
+    popularity = round(lr_model.coefficients[5], 2)
     b = round(lr_model.intercept, 2)
-    print("Coefficients: %s" % str(lr_model.coefficients))
-    print("Intercept: %s" % str(lr_model.intercept))
-    print(f"""Wzor dla regresji liniowej to: cena = {m}*x + {b}""")
+    print(
+        f"""Wzor dla regresji liniowej to:
+        cena = {year}*rok + {engine_hp}*konie_mechaniczne + {number_of_doors}*drzwi + {highway_mpg}*mpg_autostrada 
+        + {city_mpg}*mpg_miasto + {popularity}*popularnosc + {b}""")
 
     estimator = Pipeline(stages=[vec_assembler, lr])
-    estimator_model = estimator.fit(train_dataset)
-    return estimator_model
+    trained_model = estimator.fit(train_dataset)
+    return trained_model
+
+
+def make_predictions(trained_model):
+    prediction_df = trained_model.transform(test_df)
+    prediction_df.select("features", "price", "prediction").show(10)
+    return prediction_df
 
 
 def evaluate_model(model):
@@ -68,22 +83,17 @@ def plot_histogram(real_data, prediction):
 
 
 if __name__ == '__main__':
-    spark = SparkSession.builder.appName("Ceny pojazdow").getOrCreate()
+    spark = SparkSession.builder \
+        .appName("Ceny pojazdow") \
+        .getOrCreate()
     spark.sparkContext.setLogLevel("ERROR")
 
     data_path = """./data/car-data.csv"""
     cars_df = read_data(data_path)
 
     (train_df, test_df) = split_data(cars_df)
-
-    numeric_cols = ["year", "engine_hp", "number_of_doors", "highway_mpg", "city_mpg", "popularity"]
-    vec_assembler = VectorAssembler(inputCols=numeric_cols, outputCol="features", handleInvalid="skip")
-    estimate_model = create_model(train_df)
-
-    prediction_df = estimate_model.transform(test_df)
-    prediction_df.show(10)
-    prediction_df.select("features", "price", "prediction").show(10)
-
-    evaluate_model(prediction_df)
-
-    plot_histogram(cars_df, prediction_df)
+    estimate_model = train_model(train_df)
+    predictions_df = make_predictions(estimate_model)
+    evaluate_model(predictions_df)
+    plot_histogram(cars_df, predictions_df)
+    spark.stop()
