@@ -18,13 +18,11 @@ def count_words(books):
 
 
 if __name__ == '__main__':
-    spark_session = SparkSession.builder \
-        .appName("Popularne słowa") \
-        .getOrCreate()
+    spark_session = SparkSession.builder.appName("Popularne slowa").getOrCreate()
 
     spark_session.sparkContext.setLogLevel("ERROR")
 
-    books_path = """./data/books-in-english/*.txt"""
+    books_path = """./data/books/*.txt"""
     books_df = read_books(books_path)
     count_words(books_df)
     spark_session.stop()
