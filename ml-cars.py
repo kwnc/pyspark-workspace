@@ -43,7 +43,7 @@ def train_model(train_dataset):
     popularity = round(lr_model.coefficients[5], 2)
     b = round(lr_model.intercept, 2)
     print(
-        f"""Wzor dla regresji liniowej to:
+        f"""Wzor nauczonego modelu:
         cena = {year}*rok + {engine_hp}*konie_mechaniczne + {number_of_doors}*drzwi + {highway_mpg}*mpg_autostrada 
         + {city_mpg}*mpg_miasto + {popularity}*popularnosc + {b}""")
 
@@ -52,7 +52,7 @@ def train_model(train_dataset):
     return trained_model
 
 
-def make_predictions(trained_model):
+def make_predictions(trained_model, test_df):
     prediction_df = trained_model.transform(test_df)
     prediction_df.select("features", "price", "prediction").show(10)
     return prediction_df
@@ -64,10 +64,10 @@ def evaluate_model(model):
         labelCol="price",
         metricName="rmse")
     rmse = regression_evaluator.evaluate(model)
-    print(f"RMSE is {rmse:.1f}")
+    print(f"RMSE = {rmse:.1f}")
 
     r2 = regression_evaluator.setMetricName("r2").evaluate(model)
-    print(f"R2 is {r2}")
+    print(f"R2 = {r2}")
 
 
 def plot_histogram(real_data, prediction):
@@ -77,8 +77,9 @@ def plot_histogram(real_data, prediction):
 
     plt.figure()
     plt.hist([predicted, input_data], bins=30, log=False)
-    plt.legend(('predykcja', 'realne dane'))
+    plt.legend(('prognozowane ceny', 'realne ceny'))
     plt.xlabel('cena')
+    plt.ylabel('ilość')
     plt.savefig('result_histogram.png')
 
 
@@ -93,7 +94,7 @@ if __name__ == '__main__':
 
     (train_df, test_df) = split_data(cars_df)
     estimate_model = train_model(train_df)
-    predictions_df = make_predictions(estimate_model)
+    predictions_df = make_predictions(estimate_model, test_df)
     evaluate_model(predictions_df)
     plot_histogram(cars_df, predictions_df)
     spark.stop()
