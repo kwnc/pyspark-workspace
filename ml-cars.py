@@ -77,7 +77,7 @@ def plot_histogram(real_data, prediction):
 
     plt.figure()
     plt.hist([predicted, input_data], bins=30, log=False)
-    plt.legend(('prognozowane ceny', 'realne ceny'))
+    plt.legend(('prognozowane ceny', 'rzeczywiste ceny'))
     plt.xlabel('cena')
     plt.ylabel('ilość')
     plt.savefig('result_histogram.png')
